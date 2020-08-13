@@ -81,7 +81,7 @@ d = [[] for x in range(len(edge_cycles)+1)]
 
 def edge_colourer(cycleList, edge):
     for cycle in cycleList:
-        
+         
         if edge in cycle:
             return cycleList.index(cycle)+1 
     return 0
