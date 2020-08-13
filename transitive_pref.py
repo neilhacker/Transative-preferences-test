@@ -5,14 +5,13 @@ Created on Wed Aug 12 12:48:15 2020
 
 @author: neilhacker
 """
-
 import itertools
 import random
 import networkx as nx 
 import matplotlib.pyplot as plt
 from collections import defaultdict 
 
-options = ['tulum', 'tokyo', 'venice', 'rome','NYC', 'cape town','rome','athens','brussels']
+options = ['tulum', 'tokyo', 'venice', 'rome','NYC', 'cape town','athens','brussels']
 
 x = itertools.combinations(options,2)
 
@@ -29,7 +28,7 @@ print('for the below type 1 or 2 depending on if you prefer the first or second 
 for i in combins:
     answer = False
     while not answer:
-        pref = input(print(i[0], 'or', i[1]))
+        pref = input(f'{i[0]}, or, {i[1]}')
         try:
             if int(pref) == 1:
                 directed_edges.append((i[0],i[1]))
