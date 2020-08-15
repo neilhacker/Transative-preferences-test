@@ -10,6 +10,7 @@ i.e A > B > C > A
 
 Graph 2: shows if there are any strict preference orderings between nodes that are in the same indifference set
 i.e A∼B∼C but A > C
+
 <img src="https://github.com/neilhacker/transative_pref/blob/master/ExampleGraphs/Graph2.png" alt="drawing" width="400"/>
 
 Graph 3: shows if there are any preference cycles between indifference sets
