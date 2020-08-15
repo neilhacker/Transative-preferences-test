@@ -117,6 +117,7 @@ nx.draw_networkx_nodes(G, pos, node_size = node_size, node_color="Grey")
 nx.draw_networkx_labels(G, pos)
 #graph
 plt.axis("off")
+plt.title("Strict preferences cycles")
 plt.show()
 
 
@@ -176,11 +177,10 @@ nx.draw_networkx_nodes(G, pos, node_size = node_size, node_color="Grey")
 nx.draw_networkx_labels(G, pos)
 #graph
 plt.axis("off")
+plt.title("Strict preferences between items in indifference set")
 plt.show()
 
 ########################## plots graph showing between indifference set cycles ##########################
-all_edges = indif_edges + directed_edges #get all edges
-
 G_all = nx.DiGraph(all_edges) #find all groups of strongly connected components
 all_SSC_nodes = [x for x in nx.kosaraju_strongly_connected_components(G_all) if len(x) > 1]
 
@@ -211,6 +211,8 @@ if len(indif_node_groups) > 1: #only triggers if there multiple indifference set
         
         G_al = nx.DiGraph(all_edges)
         cyc = list(nx.simple_cycles(G_al))
+        cyc = sorted(cyc, key=len)
+
          
         #this finds the shortest cycles that pass through at least one node in indifference 
         # sets that are joined
@@ -224,6 +226,8 @@ if len(indif_node_groups) > 1: #only triggers if there multiple indifference set
                         count += 1
                 if count == len(group_of_indif_sets) and len(cycle) < len(good_cycle[0]):
                     good_cycle = cycle
+                    if len(cycle) == 3:
+                        break
             good_cycles.append(good_cycle)
                 
                 
@@ -287,8 +291,104 @@ if len(indif_node_groups) > 1: #only triggers if there multiple indifference set
         nx.draw_networkx_labels(G, pos)
         #graph
         plt.axis("off")
+        plt.title("Preferences cycles between indifference sets")
         plt.show()
 
+########################## plots graph showing between indifference set cycles ##########################
+
+G_indif = nx.DiGraph(indif_edges)
+indif_node_groups4 = [x for x in nx.kosaraju_strongly_connected_components(G_indif) if len(x) > 1]
+
+# finds shortest cycles for each indif set that contain an edge from indif set
+good_cyc = []
+for group in indif_node_groups4:
+    print('indif group:',group)
+    good_cycle = []
+    end = False
+    for cycle in cyc:
+        if end == False:
+            for i in range(len(cycle)-1):
+                pair = [cycle[i], cycle[i+1]]
+                if all(node in group for node in pair) == True:
+                    if all(node in group for node in cycle) == False:
+                        good_cycle = cycle
+                        end = True
+                    break
+    good_cyc.append(good_cycle)
+
+        
+edge_cyc = []
+for node in good_cyc:
+    edge_cyc.append(nodes_to_edges(node))
+
+directed_edges_graph4 = directed_edges.copy()
+indif_edges_graph4 = indif_edges.copy()
+for cycle in edge_cyc:
+    for edge in cycle:
+        if edge in directed_edges_graph4:
+            directed_edges_graph4.pop(directed_edges_graph4.index(edge))
+        else:
+            indif_edges_graph4.pop(indif_edges_graph4.index(edge))
+  
+# Graph showing violations between indifference sets
+
+# Finds edges of strict preference between nodes in indifference sets
+pref_cycle_w_indif = []
+for cycle in edge_cyc:
+    for edge in cycle:
+        pref_cycle_w_indif.append(edge)
+        
+G = nx.DiGraph()
+G.add_edges_from(all_edges)
+node_size = [len(v) * 400 for v in G.nodes()]
+
+# edge colours
+# making indiff sets different shades
+colours = ['blue','turquoise','lightblue','cyan','pink'] 
+            
+#splits inifference sets into groups so they can get different colours
+indif_edge_groups4 = [[] for x in range(len(indif_node_groups))]
+
+for edge in indif_edges_graph4:
+    for indif_nodes in indif_node_groups4:
+        if any(x in edge for x in indif_nodes) == True:
+            indif_edge_groups4[indif_node_groups4.index(indif_nodes)].append(edge)
+ 
+# making colour list for cycles that have one edge in an indif set
+colours_cycle = ['red','orange','yellow']
+if len(edge_cyc) > len(colours_cycle): #making sure list is never too long so if > 3 cycles all extra are red
+    colours_cycle.append('red') * (len(edge_cyc)-len(colours_cycle))   
+    
+#type of layout
+plt.figure(figsize=(9,9))
+pos = nx.circular_layout(G)
+
+#edges
+#draw strict pref edges
+nx.draw_networkx_edges(G, pos, edgelist=directed_edges_graph4, edge_color='black', alpha = 0.6, 
+                       node_size=node_size, width=2, arrows=True, arrowsize=40)
+
+
+#draw strict pref edges that are within indifference set
+for i in range(len(edge_cyc)): #drawing indifferent edges
+    nx.draw_networkx_edges(G, pos, edgelist=edge_cyc[i], edge_color=colours_cycle[i], alpha = 0.6, 
+                   node_size=node_size, width=2, arrows=True, arrowsize=40)
+
+#draw indif set 
+for i in range(len(indif_edge_groups)): #drawing indifferent edges
+    nx.draw_networkx_edges(G, pos, edgelist=indif_edge_groups4[i], edge_color=colours[i], alpha = 0.6, 
+                   node_size=node_size, width=2, arrows=True, arrowsize=40)
+
+
+#nodes
+nx.draw_networkx_nodes(G, pos, node_size = node_size, node_color="Grey")
+
+#labels
+nx.draw_networkx_labels(G, pos)
+#graph
+plt.axis("off")
+plt.title("Pref cycle hitting indifference sets")
+plt.show()
 
 
 
