@@ -65,7 +65,6 @@ def nodes_to_edges(node_list): #this is just taking the ouput of nx.simple_cycle
     for i in range(len(node_list)-1):
         edge = (node_list[i], node_list[i+1])
         edges = edges + (edge,)
-        print(edge)
     edges = edges +((node_list[-1], node_list[0]),)
     return edges
         
@@ -185,10 +184,9 @@ all_SSC_nodes = [x for x in nx.kosaraju_strongly_connected_components(G_all) if 
 
 if len(indif_node_groups) > 1: #only triggers if there multiple indifference sets one could link between
     if len(all_SSC_nodes) < len(indif_node_groups):# only triggers if at least 2 indifference sets are linked 
-    
         #sets up list to hold lists of indifference sets that are in a cycle
         SSC_indif_sets = [[] for x in range(len(all_SSC_nodes))] 
-        
+
         #populates SSC_indif_sets with lists of indifference sets that are in cycles
         for node_set in indif_node_groups:
             for ssc_set in all_SSC_nodes:
@@ -197,23 +195,40 @@ if len(indif_node_groups) > 1: #only triggers if there multiple indifference set
                         SSC_indif_sets[all_SSC_nodes.index(ssc_set)].append(node)
                     break
         
-        #finds all cycles in graph with all edges
+        
+        #based on strongly connected componenets makes list where sublists are the indifference sets 
+        # in the same SCC group      
+        
+        indif_sets_in_same_SCC = [[] for x in range(len(SSC_indif_sets))]
+        
+        for node_set in indif_node_groups:
+            for i in range(len(SSC_indif_sets)):
+                if all(x in SSC_indif_sets[i] for x in node_set) == True:
+                    indif_sets_in_same_SCC[i].append(node_set)
+        
+        
         G_al = nx.DiGraph(all_edges)
         cyc = list(nx.simple_cycles(G_al))
-        
-        #finds first cycle that only contains nodes in sublists of SSC_indif_sets
-        
-        cyclez = []
-        for node_set in SSC_indif_sets:
+         
+        #this finds the shortest cycles that pass through at least one node in indifference 
+        # sets that are joined
+        good_cycles = [] 
+        for group_of_indif_sets in indif_sets_in_same_SCC:
+            good_cycle = [options]
             for cycle in cyc:
-                if all(node in cycle for node in node_set) == True:
-                    cyclez.append(cycle)
-                    break
-                        
+                count = 0
+                for node_sets in group_of_indif_sets:
+                    if any(i in cycle for i in node_sets) == True:
+                        count += 1
+                if count == len(group_of_indif_sets) and len(cycle) < len(good_cycle[0]):
+                    good_cycle = cycle
+            good_cycles.append(good_cycle)
+                
+                
         edge_cyclez = []
-        for node in cyclez:
+        for node in good_cycles:
             edge_cyclez.append(nodes_to_edges(node))
-        
+
         directed_edges_graph3 = directed_edges.copy()
         indif_edges_graph3 = indif_edges.copy()
         for cycle in edge_cyclez:
@@ -222,8 +237,7 @@ if len(indif_node_groups) > 1: #only triggers if there multiple indifference set
                     directed_edges_graph3.pop(directed_edges_graph3.index(edge))
                 else:
                     indif_edges_graph3.pop(indif_edges_graph3.index(edge))
-                
-                
+  
         # Graph showing violations between indifference sets
         
         # Finds edges of strict preference between nodes in indifference sets
