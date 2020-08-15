@@ -72,11 +72,12 @@ edge_cycles = []
 for i in cycles:
     edge_cycles.append(nodes_to_edges(i))
 
+all_edges = indif_edges + directed_edges #get all edges
 
 
 ########################## plots graph of preferences and shows strict preference cycles ##########################
 G = nx.DiGraph()
-G.add_edges_from(directed_edges)
+G.add_edges_from(all_edges)
 node_size = [len(v) * 400 for v in G.nodes()]
 
 # edge colours
@@ -102,12 +103,12 @@ for edge in directed_edges:
 plt.figure(figsize=(9,9))
 pos = nx.circular_layout(G)
 #edges
+nx.draw_networkx_edges(G, pos, edgelist=indif_edges, edge_color='black', alpha = 0.6, 
+                   node_size=node_size, width=2, arrows=True, arrowsize=40)
+
 for i in range(len(d)):
     nx.draw_networkx_edges(G, pos, edgelist=d[i], edge_color=colours[i], alpha = 0.6, 
                        node_size=node_size, width=2, arrows=True, arrowsize=40)
-
-nx.draw_networkx_edges(G, pos, edgelist=indif_edges, edge_color='black', alpha = 0.6, 
-                   node_size=node_size, width=2, arrows=True, arrowsize=40)
 
 #nodes
 nx.draw_networkx_nodes(G, pos, node_size = node_size, node_color="Grey")
@@ -135,9 +136,9 @@ for node_set in indif_node_groups:
             indif_violating_edges.append(edge)
             direct_edge_copy.pop(direct_edge_copy.index(edge))
             break
-        
+
 G = nx.DiGraph()
-G.add_edges_from(direct_edge_copy)
+G.add_edges_from(all_edges)
 node_size = [len(v) * 400 for v in G.nodes()]
 
 # edge colours
@@ -160,7 +161,8 @@ pos = nx.circular_layout(G)
 nx.draw_networkx_edges(G, pos, edgelist=direct_edge_copy, edge_color='black', alpha = 0.6, 
                        node_size=node_size, width=2, arrows=True, arrowsize=40)
 #draw strict pref edges that are within indifference set
-nx.draw_networkx_edges(G, pos, edgelist=indif_violating_edges, edge_color='red', alpha = 0.6, 
+if len(indif_violating_edges) > 0:
+    nx.draw_networkx_edges(G, pos, edgelist=indif_violating_edges, edge_color='red', alpha = 0.6, 
                        node_size=node_size, width=2, arrows=True, arrowsize=40)
 #draw indif set 
 for i in range(len(indif_edge_groups)): #drawing indifferent edges
@@ -247,7 +249,7 @@ if len(indif_node_groups) > 1: #only triggers if there multiple indifference set
                 between_indif_violating_edges.append(edge)
                 
         G = nx.DiGraph()
-        G.add_edges_from(directed_edges_graph3)
+        G.add_edges_from(all_edges)
         node_size = [len(v) * 400 for v in G.nodes()]
         
         # edge colours
