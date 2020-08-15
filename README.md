@@ -1,18 +1,13 @@
 # transative_pref
 
-This programme takes a set of options and gets the user to choose their preferred option out of all pairs. 
-The programme looks to see if there are any strongly connected components which would indicate a preference cycle. 
+Programme take set of options and presents user with every pair of options. The user then says which option they prefer or if they are indifferent.
 
-The output is a directed graph and for each set of strongly connected components one of the cycles that links them
-will be displayed in a different colour.
-
-Issues:
-Basically the idea was to have a similar output to https://demonstrations.wolfram.com/EnumeratingCyclesOfADirectedGraph/
-
-Verifying if a directed graph is cyclic is very efficient but finding a labeled path is less easy. The best way I have found 
-is using Johnson's algorithm but I have not been able to code it yet. 
-
-Instead what I use works fine for small sets of preferences as I use a very inefficient permutation of edge combinations. Once 
-you start having preference cycles with > 6 nodes it can take a long time to complete.
+The output is three graphs:
+Graph 1: shows if there are any preference cycles based on strict preference orderings. 
+i.e A > B > C > A
+Graph 2: shows if there are any strict preference orderings between nodes that are in the same indifference set
+i.e A∼B∼C but A > C
+Graph 3: shows if there are any preference cycles between indifference sets
+i.e A∼B and C∼D but A>C and D>B
 
 
