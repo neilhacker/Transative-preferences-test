@@ -1,6 +1,6 @@
 # transative_pref
 
-Programme take set of options and presents user with every pair of options. The user then says which option they prefer or if they are indifferent.
+Takes a set of options and presents user with every pair of options. The user then says which option they prefer or if they are indifferent.
 
 The output is three graphs:
 
